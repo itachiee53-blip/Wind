@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌬️ Wind Farm Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --white: #ffffff;
+    --offwhite: #f7f9fc;
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 4px 24px rgba(0,0,0,0.09);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.13);
+    --sky: #4aa3df;
+    --sky-lt: #e8f4fd;
+    --sky-dk: #1a6fb5;
+    --green: #22a96e;
+    --green-lt: #e6f9f0;
+    --gold: #e8a020;
+    --gold-lt: #fff8e6;
+    --red: #e05252;
+    --red-lt: #fdf0f0;
+    --text: #1a2332;
+    --text2: #5a6880;
+    --text3: #9aa5b8;
+    --font: 'Noto Sans Thai', sans-serif;
+    --mono: 'Space Mono', monospace;
+    --radius: 18px;
+    --radius-sm: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+    overflow: hidden; width: 100%; height: 100%;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    touch-action: none;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ── SCREENS ── */
+.screen {
+    position: absolute; inset: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--bg);
+}
+
+/* ── CARDS ── */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    width: 100%; max-width: 420px;
+    box-shadow: var(--shadow-lg);
+}
+.card h2 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.card p  { font-size: 13px; color: var(--text2); margin-bottom: 18px; }
+
+/* ── INPUTS ── */
+.inp {
+    width: 100%; padding: 13px 16px;
+    background: var(--offwhite);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text); font-size: 15px;
+    font-family: var(--font); font-weight: 600;
+    outline: none; margin-bottom: 12px;
+    transition: all 0.18s;
+}
+.inp:focus { border-color: var(--sky); background: var(--sky-lt); box-shadow: 0 0 0 3px rgba(74,163,223,0.15); }
+.inp::placeholder { color: var(--text3); }
+
+/* ── BUTTONS ── */
+.btn {
+    width: 100%; padding: 14px 20px;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 15px; font-weight: 700;
+    font-family: var(--font); cursor: pointer;
+    transition: all 0.14s;
+    margin-bottom: 10px;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-sky  { background: linear-gradient(135deg,#4aa3df,#1a6fb5); color: #fff; box-shadow: 0 4px 16px rgba(74,163,223,0.35); }
+.btn-sky:hover  { box-shadow: 0 6px 22px rgba(74,163,223,0.5); }
+.btn-green{ background: linear-gradient(135deg,#22a96e,#14855a); color: #fff; box-shadow: 0 4px 16px rgba(34,169,110,0.35); }
+.btn-green:hover{ box-shadow: 0 6px 22px rgba(34,169,110,0.5); }
+.btn-gold { background: linear-gradient(135deg,#e8a020,#c07010); color: #fff; box-shadow: 0 4px 16px rgba(232,160,32,0.35); }
+.btn-outline{ background: transparent; color: var(--text2); border: 1.5px solid var(--border); }
+.btn-outline:hover{ background: var(--offwhite); }
+.btn-sm { font-size: 13px; padding: 11px 16px; }
+
+/* ── LOGIN ── */
+#login-screen {
+    background: linear-gradient(160deg, #e8f4fd 0%, var(--bg) 60%);
+}
+.logo-badge {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg,var(--sky),var(--sky-dk));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 28px rgba(74,163,223,0.35);
+}
+#login-screen .card h1 {
+    font-size: 26px; font-weight: 900; text-align: center; margin-bottom: 4px;
+    color: var(--text);
+}
+#login-screen .card > p { text-align: center; }
+
+/* ── LOBBY / PREGAME ── */
+.code-display {
+    font-family: var(--mono); font-size: 38px; font-weight: 700;
+    text-align: center; letter-spacing: 10px;
+    color: var(--sky); margin: 6px 0 18px;
+}
+.progress-wrap { background: var(--border); border-radius: 30px; height: 8px; overflow: hidden; margin: 10px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg,var(--sky),var(--sky-dk)); transition: width 0.4s; border-radius: 30px; }
+.player-count { font-size: 34px; font-weight: 900; text-align: center; color: var(--text); }
+.player-count span { font-size: 16px; color: var(--text3); font-weight: 400; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: var(--text3); font-size: 12px; }
+.divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* ── LEVEL INTRO ── */
+#level-intro-screen { background: rgba(238,242,247,0.92); backdrop-filter: blur(10px); z-index: 200; }
+.intro-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 30px 26px;
+    width: 100%; max-width: 440px;
+    box-shadow: var(--shadow-lg);
+    max-height: 92vh; overflow-y: auto;
+}
+.intro-card::-webkit-scrollbar { width: 4px; }
+.intro-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.intro-icon { font-size: 52px; display: block; text-align: center; margin-bottom: 10px; }
+.intro-card h2 { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 4px; color: var(--text); }
+.tagline { text-align: center; color: var(--text2); font-size: 13px; margin-bottom: 18px; }
+.badge-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 30px; font-size: 11px; font-weight: 700;
+    margin-bottom: 14px; border: 1.5px solid;
+}
+.badge-ocean  { background: #e8f4fd; color: var(--sky-dk); border-color: #bcd9f0; }
+.badge-desert { background: #fff8e6; color: #c07010; border-color: #f0d088; }
+.badge-arctic { background: #f0f8ff; color: #1a6fb5; border-color: #c0dcf4; }
+.badge-storm  { background: #f5f0fa; color: #7040a0; border-color: #d0b8e8; }
+
+.k-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 13px; margin-bottom: 8px;
+    background: var(--offwhite); border-radius: 12px;
+    border: 1px solid var(--border);
+}
+.k-item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.k-item-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.k-item-text strong { color: var(--text); display: block; font-size: 12px; margin-bottom: 2px; }
+.obj-box {
+    background: var(--gold-lt); border: 1.5px solid rgba(232,160,32,0.3);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+}
+.obj-label { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.obj-text  { font-size: 13px; font-weight: 700; color: var(--text); }
+.quota-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.quota-item { flex:1; background:var(--sky-lt); border-radius:10px; padding:10px; text-align:center; border:1.5px solid #bcd9f0; }
+.quota-item .q-num { font-size:26px; font-weight:900; color:var(--sky-dk); }
+.quota-item .q-label { font-size:10px; color:var(--text2); margin-top:2px; }
+
+/* ── GAME HUD ── */
+#game-ui { display:none; pointer-events:none; z-index:10; position:absolute; inset:0; }
+.hud-panel {
+    position: absolute;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+    pointer-events: auto;
+}
+#hud-tl { top:12px; left:12px; padding:13px 15px; min-width:175px; max-width:220px; }
+#hud-tr { top:12px; right:12px; padding:13px 15px; text-align:right; min-width:140px; }
+.h-label { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text3); margin-bottom:2px; }
+.h-val   { font-size:14px; font-weight:800; color:var(--text); }
+.h-val .acc { color:var(--sky-dk); }
+.energy-big {
+    font-size:40px; font-weight:900; color:var(--green);
+    line-height:1; letter-spacing:-1px;
+    transition: transform 0.12s cubic-bezier(0.175,.885,.32,1.275), color 0.1s;
+}
+.energy-big.pop { transform:scale(1.28); color:var(--gold); }
+.energy-unit { font-size:10px; color:var(--text3); font-weight:600; margin-top:2px; }
+.timer-val { font-family:var(--mono); font-size:15px; font-weight:700; color:var(--gold); margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+
+/* Total score strip */
+#hud-total-strip {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 7px 20px;
+    font-size: 12px; font-weight: 700; color: var(--text2);
+    backdrop-filter: blur(14px); box-shadow: var(--shadow);
+    white-space: nowrap; pointer-events: none;
+}
+#hud-total-strip .strip-score { color: var(--sky-dk); font-weight: 900; }
+
+.mode-btn {
+    width:100%; padding:9px 12px; border:1.5px solid var(--border);
+    border-radius:10px; font-size:12px; font-weight:700;
+    cursor:pointer; font-family:var(--font); margin-top:9px;
+    transition:all 0.15s;
+    background: var(--offwhite); color:var(--text2);
+}
+.mode-btn.active { background:linear-gradient(135deg,#4aa3df,#1a6fb5); color:#fff; border-color:transparent; box-shadow:0 3px 10px rgba(74,163,223,0.35); }
+.mode-btn:active { transform:scale(0.97); }
+
+.kpop {
+    position:absolute; bottom:110px; left:12px; width:240px;
+    background:rgba(255,255,255,0.95);
+    border:1px solid var(--border); border-radius:14px; padding:12px 14px;
+    backdrop-filter:blur(14px); box-shadow:var(--shadow);
+    pointer-events:none;
+    opacity:0; transform:translateY(10px);
+    transition:all 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+.kpop.show { opacity:1; transform:translateY(0); }
+.kp-place { font-size:10px; font-weight:700; color:var(--sky-dk); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.kp-desc  { font-size:11px; color:var(--text2); line-height:1.5; }
+.kp-power { font-size:14px; font-weight:900; color:var(--green); margin-top:5px; }
+
+#warn-toast {
+    position:absolute; top:90px; left:50%; transform:translateX(-50%) translateY(-8px);
+    background:linear-gradient(135deg,#e05252,#b83030);
+    color:#fff; padding:10px 22px;
+    border-radius:50px; font-size:13px; font-weight:700;
+    display:none; pointer-events:none; white-space:nowrap;
+    box-shadow:0 6px 24px rgba(224,82,82,0.35);
+}
+#submit-wrap {
+    position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+    display:none; pointer-events:auto; z-index:15;
+}
+#submit-wrap button {
+    padding:14px 36px; border:none; border-radius:50px;
+    font-size:17px; font-weight:800; cursor:pointer;
+    font-family:var(--font);
+    background:linear-gradient(135deg,#22a96e,#14855a);
+    color:#fff; box-shadow:0 8px 32px rgba(34,169,110,0.45);
+    animation:pulse-g 1.5s ease-in-out infinite;
+}
+@keyframes pulse-g {
+    0%,100%{box-shadow:0 8px 32px rgba(34,169,110,0.45);}
+    50%{box-shadow:0 8px 48px rgba(34,169,110,0.7);}
+}
+#submit-wrap button:active { transform:scale(0.96); }
+
+/* LEVEL CLEAR OVERLAY */
+#level-clear-screen {
+    background: rgba(238,242,247,0.94); backdrop-filter: blur(12px); z-index: 300;
+}
+.clear-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 24px; padding: 36px 30px; width: 100%; max-width: 400px;
+    box-shadow: var(--shadow-lg); text-align: center;
+}
+.clear-star { font-size: 56px; margin-bottom: 12px; }
+.clear-card h2 { font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+.clear-card .sub { color: var(--text2); font-size: 13px; margin-bottom: 22px; }
+.score-row { display:flex; justify-content:space-between; align-items:center;
+    background: var(--offwhite); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px;
+    border: 1px solid var(--border);
+}
+.score-row .sr-label { font-size: 13px; color: var(--text2); font-weight: 600; }
+.score-row .sr-val   { font-size: 18px; font-weight: 900; color: var(--sky-dk); }
+.score-total-box {
+    background: linear-gradient(135deg, var(--sky-lt), #d4ecfa);
+    border: 2px solid #bcd9f0; border-radius: 14px; padding: 16px;
+    margin: 14px 0 20px;
+}
+.score-total-box .st-label { font-size: 11px; font-weight: 700; color: var(--sky-dk); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.score-total-box .st-val   { font-size: 40px; font-weight: 900; color: var(--sky-dk); }
+.score-total-box .st-unit  { font-size: 13px; color: var(--text2); }
+
+/* LEADERBOARD */
+#leaderboard-screen { background: var(--bg); }
+.lb-header { text-align: center; margin-bottom: 22px; padding-top: 16px; }
+.lb-header h2 { font-size: 22px; font-weight: 900; color: var(--text); }
+.lb-header p  { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.rank-row {
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px; margin-bottom:8px;
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.rank-row.r1 { background:linear-gradient(90deg,#fff8e6,var(--card)); border-color: #f0d088; }
+.rank-row.r2 { border-color: #d0d8e4; }
+.rank-row.r3 { background:linear-gradient(90deg,#fdf5f0,var(--card)); border-color: #e8c8b0; }
+.rank-row.rme{ border-color: var(--sky); box-shadow: 0 0 0 2px rgba(74,163,223,0.2); }
+.rank-medal  { font-size:20px; }
+.rank-name   { flex:1; font-size:14px; font-weight:700; color:var(--text); }
+.rs-val  { font-size:16px; font-weight:900; color:var(--green); text-align:right; }
+.rs-time { font-size:10px; color:var(--text3); font-family:var(--mono); text-align:right; }
+.lb-scroll { max-height:50vh; overflow-y:auto; margin:14px 0; }
+.lb-scroll::-webkit-scrollbar { width:4px; }
+.lb-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+/* POST GAME WAITING */
+#postgame-screen { background: var(--bg); }
+.loader { border:3px solid var(--border); border-top-color:var(--sky); border-radius:50%; width:40px; height:40px; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.45} }
+.pulse-txt { animation:pulse 1.5s ease-in-out infinite; }
+
+@media(max-width:768px){
+    #hud-tl { max-width:52%; padding:10px 12px; min-width:0; }
+    #hud-tr { min-width:unset; width:42%; padding:10px 12px; }
+    .energy-big { font-size:28px; }
+    .kpop { bottom:90px; width:calc(100% - 24px); }
+    #submit-wrap button { font-size:15px; padding:12px 28px; }
+    .card { padding:24px 18px; }
+    .intro-card { padding:22px 18px; }
+}
+@media(max-height:600px){
+    .intro-card { padding:16px 16px; }
+    .intro-icon { font-size:36px; margin-bottom:6px; }
+    .intro-card h2 { font-size:18px; }
+    .k-item { padding:8px 10px; margin-bottom:5px; }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen">
+    <div class="card" style="text-align:center;">
+        <div class="logo-badge">🌬️</div>
+        <h1 style="font-size:26px;font-weight:900;margin-bottom:4px;">Wind Farm Pro</h1>
+        <p>เรียนรู้พลังงานลมผ่านการสร้างฟาร์มกังหัน 4 ด่าน</p>
+        <input class="inp" id="player-name" type="text" placeholder="ชื่อของคุณ..." maxlength="12">
+        <button class="btn btn-sky" onclick="handleClick(goToLobby)">เริ่มต้น →</button>
+    </div>
+</div>
+
+<!-- LOBBY -->
+<div id="lobby-screen" class="screen" style="display:none;">
+    <div class="card">
+        <h2>🎮 ห้องแข่งขัน</h2>
+        <p>เริ่มจากด่าน 1 ไปถึงด่าน 4 รวมคะแนนทุกด่าน!</p>
+        <div style="background:var(--offwhite);padding:16px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;">
+            <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:7px;">สร้างห้อง (Host)</label>
+            <input class="inp" type="number" id="host-max-players" min="2" max="30" value="30" placeholder="จำนวนผู้เล่น">
+            <button class="btn btn-sky btn-sm" onclick="handleClick(createRoom)">➕ สร้างห้องใหม่</button>
+        </div>
+        <div class="divider">หรือ</div>
+        <div style="background:var(--offwhite);padding:16px;border-radius:12px;border:1px solid var(--border);">
+            <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:7px;">เข้าร่วมห้อง (Guest)</label>
+            <input class="inp" type="text" id="join-code" placeholder="รหัสห้อง 4 หลัก..." maxlength="4">
+            <button class="btn btn-outline btn-sm" onclick="handleClick(joinRoom)">เข้าร่วม</button>
+        </div>
+    </div>
+</div>
+
+<!-- PREGAME -->
+<div id="pregame-screen" class="screen" style="display:none;">
+    <div class="card" style="text-align:center;">
+        <div class="loader"></div>
+        <p style="font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">รหัสห้อง</p>
+        <div class="code-display" id="display-room-code">----</div>
+        <p id="role-status" style="color:var(--text2);">กำลังเชื่อมต่อ...</p>
+        <div style="background:var(--offwhite);padding:14px;border-radius:12px;border:1px solid var(--border);margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">ผู้เล่นเข้าร่วม</div>
+            <div class="player-count"><span id="players-joined">1</span> <span>/ <span id="display-max-players">30</span></span></div>
+            <div class="progress-wrap"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+        </div>
+        <button id="start-game-btn" class="btn btn-green" style="display:none;" disabled onclick="handleClick(startGame)">🚀เริ่มเกม!</button>
+        <p id="waiting-host" class="pulse-txt" style="display:none;font-size:13px;font-weight:700;color:var(--gold);">รอหัวห้องกดเริ่ม...</p>
+    </div>
+</div>
+
+<!-- LEVEL INTRO -->
+<div id="level-intro-screen" class="screen" style="display:none;">
+    <div class="intro-card" id="intro-content"></div>
+</div>
+
+<!-- LEVEL CLEAR -->
+<div id="level-clear-screen" class="screen" style="display:none;">
+    <div class="clear-card" id="clear-content"></div>
+</div>
+
+<!-- POSTGAME (waiting all) -->
+<div id="postgame-screen" class="screen" style="display:none;">
+    <div class="card" style="text-align:center;">
+        <div class="loader"></div>
+        <h2>รอผู้เล่นทุกคน...</h2>
+        <p>ประมวลผลคะแนนขั้นสุดท้าย</p>
+        <div style="font-size:30px;font-weight:900;color:var(--sky-dk);margin-top:10px;">
+            <span id="players-finished">0</span>/<span id="display-max-players-post">30</span>
+        </div>
+    </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="leaderboard-screen" class="screen" style="display:none;">
+    <div class="card" style="max-width:500px;width:100%;">
+        <div class="lb-header">
+            <h2>🏆 ผลการแข่งขัน</h2>
+            <p>คะแนนรวมทุก 4 ด่าน</p>
+        </div>
+        <div class="lb-scroll" id="leaderboard-list"></div>
+        <button class="btn btn-sky" onclick="handleClick(()=>location.reload())">🔄 เล่นใหม่</button>
+    </div>
+</div>
+
+<!-- GAME UI -->
+<div id="game-ui">
+    <div class="hud-panel" id="hud-tl">
+        <div class="h-label">ผู้เล่น</div>
+        <div class="h-val"><span id="in-game-name" class="acc"></span></div>
+        <div style="margin-top:7px;">
+            <div class="h-label">กังหันที่เหลือ</div>
+            <div class="h-val"><span id="turbines-left" class="acc">0</span> / <span id="turbines-max">3</span></div>
+        </div>
+        <button class="mode-btn" id="toggle-mode-btn" onclick="handleClick(toggleBuildMode)">วางทีละต้น</button>
+    </div>
+    <div class="hud-panel" id="hud-tr">
+        <div class="h-label">พลังงานด่านนี้</div>
+        <div class="energy-big" id="energy-rate">0</div>
+        <div class="energy-unit">หน่วย/วิ</div>
+        <div class="timer-val">⏱ <span id="timer-display">0.00</span>s</div>
+    </div>
+    <!-- total score center strip -->
+    <div id="hud-total-strip">
+        คะแนนรวม: <span class="strip-score" id="strip-total">0</span> | ด่าน <span id="strip-level">1</span>/4
+    </div>
+    <div id="warn-toast"></div>
+    <div class="kpop" id="kpop">
+        <div class="kp-place" id="kp-place"></div>
+        <div class="kp-desc"  id="kp-desc"></div>
+        <div class="kp-power" id="kp-power"></div>
+    </div>
+    <div id="submit-wrap">
+        <button onclick="handleClick(submitScore)">ส่งคะแนนด่านนี้</button>
+    </div>
+</div>
+
+<div id="canvas-container" style="position:absolute;inset:0;z-index:1;touch-action:none;"></div>
+
+<script>
+/* ── AUDIO ── */
+const AC = new (window.AudioContext||window.webkitAudioContext)();
+function tone(f,t,d,v){
+    try{
+        if(AC.state==='suspended') AC.resume();
+        const o=AC.createOscillator(),g=AC.createGain();
+        o.type=t; o.frequency.value=f;
+        g.gain.setValueAtTime(v,AC.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.00001,AC.currentTime+d);
+        o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+d);
+    }catch(e){}
+}
+const sfx={
+    click:()=>tone(700,'sine',0.07,0.07),
+    place:()=>{tone(440,'triangle',0.12,0.1);setTimeout(()=>tone(880,'sine',0.18,0.07),60);},
+    remove:()=>{tone(280,'sawtooth',0.1,0.09);},
+    warn:()=>{tone(200,'sawtooth',0.2,0.16);setTimeout(()=>tone(200,'sawtooth',0.3,0.16),250);},
+    fanfare:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.25,0.1),i*80));},
+    levelClear:()=>{[523,659,784,1046,1318].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',0.35,0.15),i*100));}
+};
+function handleClick(fn){sfx.click();if(fn)fn();}
+
+/* ── FIREBASE ── */
+const firebaseConfig={
+    apiKey:"AIzaSyC_9946WWR-E7tSxwh5qCRjWBXeAuXAASU",
+    authDomain:"wind-1b4e4.firebaseapp.com",
+    databaseURL:"https://wind-1b4e4-default-rtdb.firebaseio.com",
+    projectId:"wind-1b4e4",
+    storageBucket:"wind-1b4e4.firebasestorage.app",
+    messagingSenderId:"246986261240",
+    appId:"1:246986261240:web:decde9907f030c1537310d"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+/* ── STATE ── */
+let playerName='',roomCode='',isHost=false;
+let playersInRoom=1,maxPlayers=30;
+let isGameActive=false;
+let currentLevelId=1; // 1..4
+let maxTurbines=3,turbinesPlaced=0;
+let currentEnergyRate=0,peakEnergyRate=0;
+let totalScore=0; // accumulated across levels
+let buildMode='single',startTime,timeTaken=0,timerInterval;
+let roomRef=null,playerRef=null;
+const MIN_DISTANCE=11;
+
+/* ── LEVEL DATA ── */
+const LEVELS={
+    1:{id:1,name:'ทะเลเปิด',icon:'🌊',badge:'badge-ocean',
+       tagline:'ฟาร์มกังหันนอกชายฝั่ง (Offshore Wind Farm)',
+       turbines:3,minDist:11,
+       knowledge:[
+           {icon:'💨',title:'ลมทะเลแรงกว่าบก',desc:'ความเร็วลมเพิ่มขึ้น 20-40% เมื่ออยู่นอกชายฝั่ง เพราะไม่มีแรงเสียดทานจากพื้นดิน'},
+           {icon:'📏',title:'ระยะห่างสำคัญมาก',desc:'กังหันต้องห่างกัน 5-7 เท่าของเส้นผ่านศูนย์กลางใบพัด เพื่อป้องกัน Wake Effect'},
+           {icon:'🌊',title:'ยิ่งไกลฝั่งยิ่งดี',desc:'พื้นที่ทะเลลึกห่างฝั่ง 10-50 กม. มีลมสม่ำเสมอที่สุดตลอดทั้งปี'},
+       ],
+       objective:'วางกังหัน 3 ต้นในตำแหน่งที่ให้พลังงานสูงสุด ยิ่งไกลฝั่งยิ่งดี!',
+       passScore:20,
+       skyColor:0xb3d4f0,fogColor:0xd0e8f8,fogDensity:0.003,
+       camPos:[0,85,120],camTarget:[0,0,0],
+    },
+    2:{id:2,name:'ทะเลทราย',icon:'🏜️',badge:'badge-desert',
+       tagline:'พลังงานลมในทะเลทรายร้อน (Desert Wind)',
+       turbines:4,minDist:13,
+       knowledge:[
+           {icon:'🌡️',title:'ลมร้อนพุ่งขึ้น Thermal',desc:'ความร้อนจากทะเลทรายทำให้อากาศร้อนลอยตัวสูง เกิดกระแสลมแนวตั้งแรง Thermal Updraft'},
+           {icon:'🏔️',title:'ลมช่องเขา Canyon Wind',desc:'กำแพงหินบีบให้ลมไหลเร็วขึ้น 2-3 เท่า คล้ายหลัก Venturi Effect ในฟิสิกส์'},
+           {icon:'🌅',title:'ลมกลางวัน-คืนต่างกัน',desc:'ทะเลทรายมีลมแปรปรวนกลางวัน-คืนรุนแรง ต้องออกแบบ Farm ให้รับลมได้หลายทิศ'},
+       ],
+       objective:'วางกังหัน 4 ต้น บนพื้นที่สูงและช่องเขาให้ได้พลังงานมากที่สุด!',
+       passScore:30,
+       skyColor:0xf5dfa0,fogColor:0xfaead0,fogDensity:0.004,
+       camPos:[0,90,130],camTarget:[0,0,0],
+    },
+    3:{id:3,name:'ขั้วโลก',icon:'🏔️',badge:'badge-arctic',
+       tagline:'กังหันลมขั้วโลก (Arctic Wind Farm)',
+       turbines:3,minDist:10,
+       knowledge:[
+           {icon:'❄️',title:'อากาศเย็นหนาแน่นกว่า',desc:'อากาศที่ -20°C มีความหนาแน่นสูงกว่าอากาศร้อน 15-20% ทำให้กังหันผลิตพลังงานได้มากขึ้น'},
+           {icon:'🌬️',title:'ลมขั้วโลก Polar Vortex',desc:'กระแสลมวนขั้วโลกสร้างลมแรงต่อเนื่อง 70-100 กม./ชม. เหมาะอย่างยิ่งสำหรับ Offshore Wind'},
+           {icon:'🏔️',title:'ระดับสูงให้ลมดีกว่า',desc:'ยอดเขาน้ำแข็งมีลมแรงกว่าระดับพื้น 40-60% แต่ต้องระวังน้ำแข็งเกาะใบพัด'},
+       ],
+       objective:'วางกังหัน 3 ต้น บนยอดเขาน้ำแข็งและทะเลน้ำแข็ง!',
+       passScore:25,
+       skyColor:0xd8eef8,fogColor:0xe8f5ff,fogDensity:0.0025,
+       camPos:[0,100,140],camTarget:[0,0,0],
+    },
+    4:{id:4,name:'พายุเส้นศูนย์สูตร',icon:'⛈️',badge:'badge-storm',
+       tagline:'Tropical Storm Wind Farm',
+       turbines:5,minDist:12,
+       knowledge:[
+           {icon:'🌀',title:'พลังงานลมสูงสุดในโลก',desc:'เขตศูนย์สูตรมีลมพัดต่อเนื่องตลอดปี Trade Winds ที่นักพลังงานโลกมองว่าเป็นขุมทรัพย์ใหม่'},
+           {icon:'⚡',title:'กำลังลม = (ความเร็ว)³',desc:'ลมแรงขึ้น 2 เท่า = พลังงานมากขึ้น 8 เท่า! สูตร P = ½ρAv³ คือหัวใจของวิศวกรรมพลังงานลม'},
+           {icon:'🔄',title:'Wake Effect ทำลายพลังงาน',desc:'กังหันต้นหน้าสร้างร่มเงาลมให้ต้นหลัง ลดพลังงานได้ถึง 40% ต้องวางแบบ Staggered Grid'},
+       ],
+       objective:'วางกังหัน 5 ต้น ในรูปแบบ Staggered Grid เพื่อหลีกเลี่ยง Wake Effect!',
+       passScore:50,
+       skyColor:0x7fa8c0,fogColor:0x90b8cc,fogDensity:0.006,
+       camPos:[0,95,135],camTarget:[0,0,0],
+    }
+};
+
+/* ── NAVIGATION ── */
+function showScreen(name){
+    ['login','lobby','pregame','level-intro','level-clear','postgame','leaderboard'].forEach(s=>{
+        const el=document.getElementById(s+'-screen');
+        if(el) el.style.display=(s===name?'flex':'none');
+    });
+}
+
+function goToLobby(){
+    const n=document.getElementById('player-name').value.trim();
+    if(!n){alert('กรุณาใส่ชื่อของคุณ!');return;}
+    playerName=n;
+    document.getElementById('in-game-name').innerText=playerName;
+    showScreen('lobby');
+}
+
+/* ── ROOM LOGIC ── */
+function createRoom(){
+    isHost=true;
+    let m=parseInt(document.getElementById('host-max-players').value);
+    if(isNaN(m)||m<2||m>30) m=30;
+    maxPlayers=m;
+    roomCode=Math.floor(1000+Math.random()*9000).toString();
+    roomRef=db.ref('rooms/'+roomCode);
+    roomRef.set({status:'waiting',maxPlayers,levelId:1,totalScores:{}});
+    joinRoomLogic();
+}
+function joinRoom(){
+    const c=document.getElementById('join-code').value;
+    if(c.length!==4){alert('กรุณากรอกรหัส 4 หลัก!');return;}
+    isHost=false; roomCode=c;
+    roomRef=db.ref('rooms/'+roomCode);
+    roomRef.once('value',snap=>{
+        if(snap.exists()){
+            maxPlayers=snap.val().maxPlayers||30;
+            joinRoomLogic();
+        } else alert('ไม่พบรหัสห้องนี้!');
+    });
+}
+function joinRoomLogic(){
+    playerRef=db.ref('rooms/'+roomCode+'/players/'+playerName);
+    playerRef.set({score:0,time:0,status:'joined',totalScore:0});
+    playerRef.onDisconnect().remove();
+    setupPregame();
+}
+function setupPregame(){
+    showScreen('pregame');
+    document.getElementById('display-room-code').innerText=roomCode;
+    document.getElementById('display-max-players').innerText=maxPlayers;
+    document.getElementById('display-max-players-post').innerText=maxPlayers;
+    if(isHost){
+        document.getElementById('role-status').innerText='👑 คุณคือหัวห้อง';
+        document.getElementById('start-game-btn').style.display='block';
+    } else {
+        document.getElementById('role-status').innerText='👤 ผู้เข้าร่วม';
+        document.getElementById('waiting-host').style.display='block';
+    }
+    db.ref('rooms/'+roomCode+'/players').on('value',snap=>{
+        const d=snap.val()||{};
+        playersInRoom=Object.keys(d).length;
+        document.getElementById('players-joined').innerText=playersInRoom;
+        document.getElementById('progress-bar').style.width=(playersInRoom/maxPlayers*100)+'%';
+        if(isHost&&playersInRoom>=1){
+            const b=document.getElementById('start-game-btn');
+            b.disabled=false; b.innerText='เริ่มเกม!';
+        }
+    });
+    roomRef.child('status').on('value',snap=>{if(snap.val()==='playing') showLevelIntro(1);});
+}
+function startGame(){roomRef.update({status:'playing',currentLevel:1});}
+
+/* ── LEVEL INTRO ── */
+function showLevelIntro(lvId){
+    currentLevelId=lvId;
+    const lv=LEVELS[lvId];
+    const el=document.getElementById('intro-content');
+    el.innerHTML=`
+        <span class="intro-icon">${lv.icon}</span>
+        <div style="text-align:center;margin-bottom:12px;">
+            <span class="badge-pill ${lv.badge}">ด่าน ${lv.id} จาก 4 — ${lv.name}</span>
+        </div>
+        <h2>${lv.tagline}</h2>
+        <p class="tagline">${lv.name} • วิทยาศาสตร์พลังงานลม</p>
+        <div style="margin-bottom:14px;">
+            ${lv.knowledge.map(k=>`
+            <div class="k-item">
+                <span class="k-item-icon">${k.icon}</span>
+                <div class="k-item-text"><strong>${k.title}</strong>${k.desc}</div>
+            </div>`).join('')}
+        </div>
+        <div class="quota-row">
+            <div class="quota-item"><div class="q-num">${lv.turbines}</div><div class="q-label">กังหันลม</div></div>
+            <div class="quota-item"><div class="q-num">${lv.minDist}m</div><div class="q-label">ระยะขั้นต่ำ</div></div>
+            <div class="quota-item"><div class="q-num">${lv.passScore}</div><div class="q-label">เป้าหมาย</div></div>
+        </div>
+        <div class="obj-box">
+            <div class="obj-label">🎯 เป้าหมาย</div>
+            <div class="obj-text">${lv.objective}</div>
+        </div>
+        ${totalScore>0?`<div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:12px;">คะแนนสะสมตอนนี้: <b style="color:var(--sky-dk)">${totalScore}</b> หน่วย</div>`:''}
+        <button class="btn btn-sky" onclick="handleClick(startGameLocal)" style="margin:0;">⚡ เริ่มด่าน ${lv.id}!</button>
+    `;
+    showScreen('level-intro');
+}
+
+/* ── GAME START ── */
+function startGameLocal(){
+    const lv=LEVELS[currentLevelId];
+    maxTurbines=lv.turbines;
+    turbinesPlaced=0; currentEnergyRate=0; peakEnergyRate=0; buildMode='single';
+    document.getElementById('turbines-left').innerText=maxTurbines;
+    document.getElementById('turbines-max').innerText=maxTurbines;
+    document.getElementById('toggle-mode-btn').innerText='วางทีละต้น';
+    document.getElementById('toggle-mode-btn').classList.remove('active');
+    document.getElementById('strip-level').innerText=currentLevelId;
+    document.getElementById('strip-total').innerText=totalScore;
+    document.getElementById('submit-wrap').style.display='none';
+
+    clearMap(); buildMap(currentLevelId);
+    showScreen(null);
+    document.getElementById('game-ui').style.display='block';
+    document.getElementById('canvas-container').style.pointerEvents='auto';
+    isGameActive=true;
+    startTime=Date.now();
+    timerInterval=setInterval(()=>{
+        document.getElementById('timer-display').innerText=((Date.now()-startTime)/1000).toFixed(2);
+    },50);
+}
+
+function toggleBuildMode(){
+    const btn=document.getElementById('toggle-mode-btn');
+    if(buildMode==='single'){buildMode='cluster';btn.innerText='⚡ วาง 3 ต้น';btn.classList.add('active');}
+    else{buildMode='single';btn.innerText='วางทีละต้น';btn.classList.remove('active');}
+}
+
+function showWarning(txt){
+    sfx.warn();
+    const w=document.getElementById('warn-toast');
+    w.innerText=txt; w.style.display='block';
+    clearTimeout(w._t);
+    w._t=setTimeout(()=>w.style.display='none',2200);
+}
+
+function updateScoreUI(v){
+    const el=document.getElementById('energy-rate');
+    el.innerText=v; el.classList.add('pop');
+    if(v>peakEnergyRate&&v>0){peakEnergyRate=v;sfx.fanfare();}
+    setTimeout(()=>el.classList.remove('pop'),150);
+}
+
+function showKpop(place,desc,power){
+    document.getElementById('kp-place').innerText='📍 '+place;
+    document.getElementById('kp-desc').innerText=desc;
+    document.getElementById('kp-power').innerText='⚡ +'+power+' หน่วย/วิ';
+    const el=document.getElementById('kpop');
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t=setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+/* ── SUBMIT SCORE FOR LEVEL ── */
+function submitScore(){
+    clearInterval(timerInterval);
+    timeTaken=(Date.now()-startTime)/1000;
+    isGameActive=false;
+    document.getElementById('game-ui').style.display='none';
+    document.getElementById('canvas-container').style.pointerEvents='none';
+
+    const lv=LEVELS[currentLevelId];
+    const passed=currentEnergyRate>=lv.passScore;
+    totalScore+=currentEnergyRate;
+
+    // Save to firebase
+    playerRef.update({
+        [`level${currentLevelId}Score`]:currentEnergyRate,
+        [`level${currentLevelId}Time`]:timeTaken,
+        totalScore
+    });
+
+    showLevelClear(passed);
+}
+
+function showLevelClear(passed){
+    const lv=LEVELS[currentLevelId];
+    const isLast=(currentLevelId===4);
+    const el=document.getElementById('clear-content');
+    let starsHtml='';
+    const pct=currentEnergyRate/lv.passScore;
+    if(pct>=1.5) starsHtml='⭐⭐⭐';
+    else if(pct>=1.0) starsHtml='⭐⭐';
+    else starsHtml='⭐';
+
+    el.innerHTML=`
+        <div class="clear-star">${passed?'🎉':'💪'}</div>
+        <h2>${passed?'ผ่านด่าน '+currentLevelId+'!':'ยังอีกนิดนึง!'}</h2>
+        <p class="sub">${lv.icon} ${lv.name} — ${starsHtml}</p>
+        <div class="score-row">
+            <span class="sr-label">พลังงานด่านนี้</span>
+            <span class="sr-val">${currentEnergyRate} หน่วย</span>
+        </div>
+        <div class="score-row">
+            <span class="sr-label">เป้าหมายด่าน</span>
+            <span class="sr-val" style="color:${passed?'var(--green)':'var(--red)'}">${lv.passScore} หน่วย</span>
+        </div>
+        <div class="score-row">
+            <span class="sr-label">เวลา</span>
+            <span class="sr-val">${timeTaken.toFixed(2)}s</span>
+        </div>
+        <div class="score-total-box">
+            <div class="st-label">คะแนนสะสมรวม</div>
+            <div class="st-val">${totalScore}</div>
+            <div class="st-unit">หน่วยพลังงาน</div>
+        </div>
+        ${isLast
+            ?`<button class="btn btn-sky" onclick="handleClick(goToPostgame)" style="margin:0;">📊 ดูผลการแข่งขัน</button>`
+            :`<button class="btn btn-sky" onclick="handleClick(()=>goToNextLevel(${currentLevelId+1}))" style="margin:0;">ด่านถัดไป: ${LEVELS[currentLevelId+1].icon} ${LEVELS[currentLevelId+1].name} →</button>`
+        }
+        ${!isLast?`<button class="btn btn-outline" onclick="handleClick(()=>retryLevel(${currentLevelId}))" style="margin-top:0;">🔄 เล่นด่านนี้ใหม่</button>`:''}
+    `;
+    sfx.levelClear();
+    showScreen('level-clear');
+}
+
+function retryLevel(lvId){
+    // subtract previous score from this level
+    totalScore-=currentEnergyRate;
+    currentEnergyRate=0;
+    startGameLocal();
+}
+
+function goToNextLevel(lvId){
+    showLevelIntro(lvId);
+}
+
+function goToPostgame(){
+    showScreen('postgame');
+    playerRef.update({status:'finished'});
+
+    db.ref('rooms/'+roomCode+'/players').on('value',snap=>{
+        const p=snap.val()||{};
+        let fin=0,total=Object.keys(p).length,lb=[];
+        for(let k in p){
+            if(p[k].status==='finished') fin++;
+            lb.push({
+                name:k===playerName?k+' (คุณ)':k,
+                score:p[k].totalScore||0,
+                time:(p[k].level1Time||0)+(p[k].level2Time||0)+(p[k].level3Time||0)+(p[k].level4Time||0),
+                isMe:k===playerName
+            });
+        }
+        document.getElementById('players-finished').innerText=fin;
+        document.getElementById('display-max-players-post').innerText=total;
+        if(fin===total&&total>0) showLeaderboard(lb);
+    });
+}
+
+function showLeaderboard(data){
+    showScreen('leaderboard');
+    data.sort((a,b)=>b.score!==a.score?b.score-a.score:a.time-b.time);
+    const list=document.getElementById('leaderboard-list'); list.innerHTML='';
+    data.forEach((p,i)=>{
+        const medals=['🥇','🥈','🥉'];
+        const medal=i<3?medals[i]:`${i+1}.`;
+        const rnk=i===0?'r1':i===1?'r2':i===2?'r3':'';
+        const me=p.isMe?'rme':'';
+        list.innerHTML+=`<div class="rank-row ${rnk} ${me}">
+            <span class="rank-medal">${medal}</span>
+            <span class="rank-name">${p.name}</span>
+            <div>
+                <div class="rs-val">${p.score} <span style="font-size:10px;color:var(--text3);font-weight:400">หน่วย</span></div>
+                <div class="rs-time">${(p.time||0).toFixed(2)}s</div>
+            </div>
+        </div>`;
+    });
+}
+
+/* ── 3D SCENE ── */
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.set(0,85,120);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.5;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.07;
+controls.maxPolarAngle=Math.PI/2-0.05; controls.minDistance=30; controls.maxDistance=240;
+controls.target.set(0,2,0);
+
+const hemiLight=new THREE.HemisphereLight(0xffffff,0xd0e8f0,0.9); scene.add(hemiLight);
+const dirLight=new THREE.DirectionalLight(0xfffaed,1.4);
+dirLight.position.set(80,130,60); dirLight.castShadow=true;
+dirLight.shadow.camera.top=100; dirLight.shadow.camera.bottom=-100;
+dirLight.shadow.camera.left=-100; dirLight.shadow.camera.right=100;
+dirLight.shadow.mapSize.width=2048; dirLight.shadow.mapSize.height=2048;
+dirLight.shadow.bias=-0.0003; scene.add(dirLight);
+
+let terrains=[],turbines=[],turbineHitboxes=[];
+let seaMesh=null,seaOrigVerts=[],animatedObjects=[],clouds=[];
+
+const mats={
+    wood:new THREE.MeshStandardMaterial({color:0x5d4037,roughness:0.85,metalness:0.1,flatShading:true}),
+    snow:new THREE.MeshStandardMaterial({color:0xfafafa,roughness:0.4,flatShading:true}),
+    rock:new THREE.MeshStandardMaterial({color:0x78909c,roughness:0.6,metalness:0.25,flatShading:true}),
+    darkRock:new THREE.MeshStandardMaterial({color:0x546e7a,roughness:0.7,flatShading:true}),
+    sand:new THREE.MeshStandardMaterial({color:0xffcc80,roughness:0.9,flatShading:true}),
+    dune:new THREE.MeshStandardMaterial({color:0xffa726,roughness:0.9,flatShading:true}),
+    ice:new THREE.MeshStandardMaterial({color:0xb3e5fc,roughness:0.1,metalness:0.3,flatShading:true}),
+    glacier:new THREE.MeshStandardMaterial({color:0xe1f5fe,roughness:0.2,flatShading:true}),
+    stormSea:new THREE.MeshPhysicalMaterial({color:0x3a6080,metalness:0.2,roughness:0.15,transmission:0.3,transparent:true,opacity:0.92,flatShading:true}),
+    ocean:new THREE.MeshPhysicalMaterial({color:0x2189c8,metalness:0.15,roughness:0.1,transmission:0.45,transparent:true,opacity:0.9,flatShading:true}),
+};
+
+function clearMap(){
+    [...terrains,...turbines.map(t=>t.group)].forEach(o=>scene.remove(o));
+    turbineHitboxes.forEach(h=>scene.remove(h.userData.group||h));
+    terrains=[]; turbines=[]; turbineHitboxes=[];
+    seaMesh=null; seaOrigVerts=[];
+    animatedObjects.forEach(o=>scene.remove(o.obj)); animatedObjects=[]; clouds=[];
+}
+
+function makeSea(w,d,x,z,mat,ud){
+    const geo=new THREE.BoxGeometry(w,4,d,16,1,32);
+    const pos=geo.attributes.position; const orig=[];
+    for(let i=0;i<pos.count;i++) orig.push({x:pos.getX(i),y:pos.getY(i),z:pos.getZ(i)});
+    const mesh=new THREE.Mesh(geo,mat);
+    mesh.position.set(x,-1,z); mesh.receiveShadow=true; mesh.userData=ud;
+    seaOrigVerts=orig; seaMesh=mesh; return mesh;
+}
+function makeTerrain(w,h,d,sx,sz,mat,px,py,pz,ud){
+    const geo=new THREE.BoxGeometry(w,h,d,sx,1,sz);
+    const pos=geo.attributes.position;
+    for(let i=0;i<pos.count;i++){
+        if(pos.getY(i)>0) pos.setY(i,h/2+Math.sin(pos.getX(i)*0.5)*0.6+Math.cos(pos.getZ(i)*0.4)*0.6+(Math.random()-0.5)*0.4);
+    }
+    geo.computeVertexNormals();
+    const mesh=new THREE.Mesh(geo,mat);
+    mesh.position.set(px,py,pz); mesh.receiveShadow=true; mesh.castShadow=true; mesh.userData=ud; return mesh;
+}
+function makeMtn(r,h,s,mat,px,py,pz,ud){
+    const mesh=new THREE.Mesh(new THREE.ConeGeometry(r,h,s),mat);
+    mesh.position.set(px,py+h/2,pz); mesh.castShadow=true; mesh.receiveShadow=true; mesh.userData=ud; return mesh;
+}
+function makeCloud(mat,x,y,z){
+    const g=new THREE.Group();
+    const geo=new THREE.IcosahedronGeometry(1,0);
+    for(let i=0;i<5;i++){
+        const m=new THREE.Mesh(geo,mat);
+        m.position.set((Math.random()-0.5)*8,(Math.random()-0.5)*2,(Math.random()-0.5)*5);
+        const sc=1.8+Math.random()*1.8; m.scale.set(sc,sc*0.7,sc); g.add(m);
+    }
+    g.position.set(x,y,z); g.userData={speed:0.01+Math.random()*0.02}; return g;
+}
+
+/* ── MAP BUILDERS ── */
+function buildMap(lvId){
+    const lv=LEVELS[lvId];
+    scene.background=new THREE.Color(lv.skyColor);
+    scene.fog=new THREE.FogExp2(lv.fogColor,lv.fogDensity);
+    camera.position.set(...lv.camPos); controls.target.set(...lv.camTarget);
+    hemiLight.color.set(lv.skyColor);
+    if(lvId===1) buildOcean();
+    else if(lvId===2) buildDesert();
+    else if(lvId===3) buildArctic();
+    else if(lvId===4) buildStorm();
+}
+
+function buildOcean(){
+    const sea=makeSea(60,120,-20,0,mats.ocean,{type:'ทะเลน้ำลึก',power:12,desc:'ลมเปิดโล่ง ยิ่งไกลฝั่งยิ่งได้พลังงานสูง'});
+    scene.add(sea); terrains.push(sea);
+    const coast=makeTerrain(22,5,120,8,28,mats.sand,19,-1,0,{type:'ชายฝั่งทะเล',power:7,desc:'ลมทะเลพัดเข้าหาฝั่ง ได้พลังงานดีพอสมควร'});
+    scene.add(coast); terrains.push(coast);
+    const island=makeTerrain(18,6,20,5,5,mats.rock,10,-1,20,{type:'เกาะหินกลางทะเล',power:9,desc:'บนหน้าผาเกาะรับลมได้รอบทิศ'});
+    scene.add(island); terrains.push(island);
+    const ltower=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.8,12,8),new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true}));
+    ltower.position.set(28,4,0); ltower.castShadow=true; scene.add(ltower);
+    const ltop=new THREE.Mesh(new THREE.ConeGeometry(1.5,3,8),new THREE.MeshStandardMaterial({color:0xe05252,flatShading:true}));
+    ltop.position.set(28,12,0); scene.add(ltop);
+    const cMat=new THREE.MeshStandardMaterial({color:0xffffff,flatShading:true,roughness:0.9,transparent:true,opacity:0.92});
+    for(let i=0;i<8;i++){const c=makeCloud(cMat,-80+Math.random()*160,28+Math.random()*14,-50+Math.random()*100);scene.add(c);clouds.push(c);}
+}
+function buildDesert(){
+    const basin=makeTerrain(80,4,120,12,18,mats.sand,0,-1,0,{type:'ที่ราบทะเลทราย',power:4,desc:'แอ่งทะเลทรายต่ำ ลมเฉื่อย'});
+    scene.add(basin); terrains.push(basin);
+    const d1=makeTerrain(20,8,50,6,12,mats.dune,-25,-1,0,{type:'สันทรายสูง',power:7,desc:'สันทรายสูงรับลมได้ดีกว่าที่ราบ 60%'});
+    scene.add(d1); terrains.push(d1);
+    const d2=makeTerrain(20,8,50,6,12,mats.dune,25,-1,0,{type:'สันทรายสูง',power:7,desc:'สันทรายสูงรับลมได้ดีกว่าที่ราบ 60%'});
+    scene.add(d2); terrains.push(d2);
+    const cL=makeTerrain(10,16,30,3,8,mats.rock,-18,-1,-20,{type:'ช่องเขา Venturi',power:11,desc:'ลมถูกบีบผ่านช่องแคบ เร็วขึ้น 2-3 เท่า'});
+    scene.add(cL); terrains.push(cL);
+    const cR=makeTerrain(10,16,30,3,8,mats.rock,18,-1,-20,{type:'ช่องเขา Venturi',power:11,desc:'ลมถูกบีบผ่านช่องแคบ เร็วขึ้น 2-3 เท่า'});
+    scene.add(cR); terrains.push(cR);
+    for(let i=0;i<3;i++){const tornado=new THREE.Mesh(new THREE.ConeGeometry(1,12,8),new THREE.MeshStandardMaterial({color:0xffcc80,transparent:true,opacity:0.3,flatShading:true}));tornado.position.set(-30+i*30,5,-40+Math.random()*20);scene.add(tornado);animatedObjects.push({obj:tornado,update:(t)=>{tornado.rotation.y+=0.05;tornado.position.y=5+Math.sin(t*0.5+i)*1;}});}
+    const cMat=new THREE.MeshStandardMaterial({color:0xffe0b2,flatShading:true,transparent:true,opacity:0.7});
+    for(let i=0;i<5;i++){const c=makeCloud(cMat,-70+Math.random()*140,35+Math.random()*10,-50+Math.random()*100);scene.add(c);clouds.push(c);}
+}
+function buildArctic(){
+    const sea=makeSea(80,120,-10,0,mats.ice,{type:'ทะเลน้ำแข็ง',power:10,desc:'อากาศขั้วโลกหนาแน่น ลมพัดต่อเนื่อง'});
+    scene.add(sea); terrains.push(sea);
+    const shelf=makeTerrain(30,6,80,8,20,mats.glacier,22,-1,0,{type:'ไหล่น้ำแข็ง',power:8,desc:'พื้นที่น้ำแข็งแผ่นใหญ่ รับลมขั้วโลกได้ตรง'});
+    scene.add(shelf); terrains.push(shelf);
+    const mtd={type:'ยอดเขาน้ำแข็ง',power:14,desc:'ยิ่งสูงลมยิ่งแรง อากาศเย็นหนาแน่นกว่า เพิ่มพลังงาน 20%'};
+    const m1=makeMtn(14,30,6,mats.darkRock,-10,1,-10,mtd); scene.add(m1); terrains.push(m1);
+    const ms1=makeMtn(5,10,6,mats.snow,-10,16,-10,{}); scene.add(ms1);
+    const m2=makeMtn(10,22,5,mats.darkRock,12,1,15,mtd); scene.add(m2); terrains.push(m2);
+    const ms2=makeMtn(3.5,7,5,mats.snow,12,12,15,{}); scene.add(ms2);
+    const m3=makeMtn(8,18,5,mats.darkRock,-18,1,18,mtd); scene.add(m3); terrains.push(m3);
+    const ms3=makeMtn(2.8,6,5,mats.snow,-18,10,18,{}); scene.add(ms3);
+    for(let i=0;i<20;i++){const floe=new THREE.Mesh(new THREE.BoxGeometry(3+Math.random()*4,0.5,3+Math.random()*4),mats.glacier);floe.position.set(-40+Math.random()*20,-0.5,-50+Math.random()*100);floe.rotation.y=Math.random()*Math.PI;floe.castShadow=true;scene.add(floe);animatedObjects.push({obj:floe,update:(t)=>{floe.position.y=-0.5+Math.sin(t*0.3+i)*0.15;}});}
+    const cMat=new THREE.MeshStandardMaterial({color:0xeceff1,flatShading:true,transparent:true,opacity:0.9});
+    for(let i=0;i<6;i++){const c=makeCloud(cMat,-80+Math.random()*160,32+Math.random()*10,-60+Math.random()*120);scene.add(c);clouds.push(c);}
+}
+function buildStorm(){
+    const sea=makeSea(55,110,-20,0,mats.stormSea,{type:'ทะเลพายุ',power:15,desc:'พลังงานลมสูงสุด! ยิ่งไกลใจกลางพายุยิ่งได้มาก'});
+    scene.add(sea); terrains.push(sea);
+    const coast=makeTerrain(20,5,110,7,26,mats.darkRock,17,-1,0,{type:'หน้าผาพายุ',power:10,desc:'หน้าผาสูงรับแรงพายุได้โดยตรง'});
+    scene.add(coast); terrains.push(coast);
+    for(let i=0;i<3;i++){
+        const deck=new THREE.Mesh(new THREE.CylinderGeometry(4,4,1.5,8),new THREE.MeshStandardMaterial({color:0x546e7a,flatShading:true,metalness:0.6}));
+        deck.position.set(-35+i*15,3,-20+i*20); deck.castShadow=true;
+        deck.userData={type:'แท่นนอกชายฝั่ง',power:13,desc:'แท่นกลางทะเล รับพายุได้เต็มๆ ไม่มีสิ่งกีดขวาง'};
+        scene.add(deck); terrains.push(deck);
+    }
+    const cMat=new THREE.MeshStandardMaterial({color:0x78909c,flatShading:true,transparent:true,opacity:0.8});
+    for(let i=0;i<12;i++){const c=makeCloud(cMat,-90+Math.random()*180,20+Math.random()*18,-70+Math.random()*140);c.userData.speed=0.025+Math.random()*0.035;scene.add(c);clouds.push(c);}
+    for(let i=0;i<5;i++){const pts=[new THREE.Vector3(0,12,0),new THREE.Vector3(-1,8,0),new THREE.Vector3(1,4,0),new THREE.Vector3(0,0,0)];const curve=new THREE.CatmullRomCurve3(pts);const geo=new THREE.TubeGeometry(curve,8,0.08,4,false);const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xfff9c4}));mesh.position.set(-50+Math.random()*100,10+Math.random()*10,-60+Math.random()*120);scene.add(mesh);animatedObjects.push({obj:mesh,update:(t)=>{mesh.visible=Math.sin(t*3+i*2)>0.7;}});}
+}
+
+/* ── TURBINE POWER ── */
+function calcPower(x,y,z,type){
+    let p=0;
+    if(type==='ทะเลน้ำลึก') p=10+(Math.abs(x)*0.15)+(Math.abs(z)*0.04);
+    else if(type==='ชายฝั่งทะเล') p=6+y*1.5;
+    else if(type==='เกาะหินกลางทะเล') p=8+y*1.2;
+    else if(type==='ที่ราบทะเลทราย') p=3+y*0.5;
+    else if(type==='สันทรายสูง') p=6+y*1.0;
+    else if(type==='ช่องเขา Venturi') p=9+y*0.8;
+    else if(type==='ทะเลน้ำแข็ง') p=9+Math.abs(x)*0.1;
+    else if(type==='ไหล่น้ำแข็ง') p=7+y*0.9;
+    else if(type==='ยอดเขาน้ำแข็ง') p=12+y*0.4;
+    else if(type==='ทะเลพายุ') p=13+Math.abs(x)*0.18;
+    else if(type==='หน้าผาพายุ') p=9+y*1.1;
+    else if(type==='แท่นนอกชายฝั่ง') p=11+y*0.7;
+    else p=3+y*0.3;
+    return Math.max(1,Math.round(p));
+}
+function dynDesc(power,type){
+    const t={
+        'ทะเลน้ำลึก':[14,'ใจกลางทะเลเปิด ลมไม่มีสิ่งกีดขวาง พลังงานสูงสุด!','บริเวณขอบทะเล ลมยังดีแต่มีผลจากฝั่ง'],
+        'เกาะหินกลางทะเล':[10,'ยอดหน้าผา รับลมรอบทิศ 360°!','เชิงเกาะ ลมบางส่วนโดนหน้าผาบัง'],
+        'สันทรายสูง':[8,'ยอดสัน Thermal Updraft แรงมาก!','ไหล่สัน ลมไม่แรงเท่ายอด'],
+        'ช่องเขา Venturi':[12,'ช่องแคบสุดขีด Venturi Effect เต็มๆ!','ขอบช่องเขา น้อยกว่าแต่ยังได้ประโยชน์'],
+        'ยอดเขาน้ำแข็ง':[16,'ยอดสูงสุด! อากาศเย็นหนาแน่น พลังงานสูงมาก','ไหล่เขา ดีกว่าพื้นราบ'],
+        'ทะเลพายุ':[16,'ใจกลางพายุ Trade Wind แรงที่สุดในโลก!','ขอบพายุ ยังได้พลังงานสูงมาก'],
+        'แท่นนอกชายฝั่ง':[14,'แท่นระดับสูง รับพายุได้เต็มๆ','ฐานแท่น ลมดี แต่ไม่เท่าดาดฟ้า'],
+    };
+    const td=t[type];
+    if(td) return power>=td[0]?td[1]:td[2];
+    return 'ตำแหน่งนี้มีลมพัดปานกลาง';
+}
+
+function createTurbine(x,y,z,typeData,power){
+    const g=new THREE.Group();
+    const tMat=new THREE.MeshStandardMaterial({color:0xf0f4f8,roughness:0.2,metalness:0.5});
+    const bMat=new THREE.MeshStandardMaterial({color:0x1a6fb5,roughness:0.3,metalness:0.5});
+    const tower=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.7,13,12),tMat);
+    tower.position.y=6.5; tower.castShadow=true; g.add(tower);
+    const nacelle=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.4,2.8),tMat);
+    nacelle.position.set(0,13,0.4); g.add(nacelle);
+    const spinner=new THREE.Mesh(new THREE.ConeGeometry(0.5,1.2,8),bMat);
+    spinner.rotation.x=Math.PI/2; spinner.position.set(0,13,1.8); g.add(spinner);
+    const rotor=new THREE.Group(); rotor.position.set(0,13,1.8);
+    for(let i=0;i<3;i++){
+        const blade=new THREE.Mesh(new THREE.BoxGeometry(0.22,10,0.4),tMat);
+        blade.position.y=5; blade.castShadow=true;
+        const pivot=new THREE.Group(); pivot.rotation.z=(i*120)*Math.PI/180; pivot.add(blade); rotor.add(pivot);
+    }
+    g.add(rotor); g.position.set(x,y,z);
+    const hitbox=new THREE.Mesh(new THREE.CylinderGeometry(2.5,2.5,20),new THREE.MeshBasicMaterial({visible:false}));
+    hitbox.position.y=10; hitbox.userData={isTurbine:true,group:g,power};
+    g.add(hitbox); scene.add(g);
+    const spd=Math.max(power*0.012,0.03);
+    turbines.push({group:g,rotor,speed:spd}); turbineHitboxes.push(hitbox);
+    g.scale.set(0.01,0.01,0.01); let t=0;
+    function grow(){t+=0.1;if(t<=1){const s=THREE.MathUtils.lerp(0.01,1,t);g.scale.set(s,s,s);requestAnimationFrame(grow);}else g.scale.set(1,1,1);}
+    grow();
+}
+function isTooClose(x,y,z){
+    const d=LEVELS[currentLevelId].minDist;
+    for(let t of turbines){
+        const p=t.group.position;
+        if(Math.sqrt(Math.pow(p.x-x,2)+Math.pow(p.y-y,2)+Math.pow(p.z-z,2))<d) return true;
+    }
+    return false;
+}
+
+/* ── INPUT ── */
+const raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2();
+let isDragging=false,pDown={x:0,y:0};
+window.addEventListener('pointerdown',e=>{isDragging=false;pDown={x:e.clientX,y:e.clientY};});
+window.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-pDown.x)>6||Math.abs(e.clientY-pDown.y)>6) isDragging=true;});
+window.addEventListener('pointerup',e=>{
+    if(e.target.tagName==='BUTTON'||e.target.tagName==='INPUT'||!isGameActive||isDragging) return;
+    mouse.x=(e.clientX/window.innerWidth)*2-1;
+    mouse.y=-(e.clientY/window.innerHeight)*2+1;
+    raycaster.setFromCamera(mouse,camera);
+    const hitT=raycaster.intersectObjects(turbineHitboxes);
+    if(hitT.length>0){
+        sfx.remove();
+        const h=hitT[0].object;
+        scene.remove(h.userData.group);
+        currentEnergyRate-=h.userData.power;
+        turbinesPlaced--;
+        turbines.splice(turbines.findIndex(t=>t.group===h.userData.group),1);
+        turbineHitboxes.splice(turbineHitboxes.indexOf(h),1);
+        document.getElementById('turbines-left').innerText=maxTurbines-turbinesPlaced;
+        updateScoreUI(currentEnergyRate);
+        if(turbinesPlaced<maxTurbines) document.getElementById('submit-wrap').style.display='none';
+        return;
+    }
+    if(turbinesPlaced>=maxTurbines) return;
+    const hitG=raycaster.intersectObjects(terrains,true);
+    if(hitG.length>0){
+        const hit=hitG[0];
+        let obj=hit.object; while(!obj.userData.type&&obj.parent) obj=obj.parent;
+        const td=obj.userData; if(!td.type) return;
+        if(buildMode==='cluster'){
+            const offs=[{x:0,z:0},{x:-10,z:-10},{x:10,z:-10}];
+            let placed=false,cp=0;
+            for(let off of offs){
+                if(turbinesPlaced>=maxTurbines) break;
+                const px=hit.point.x+off.x,pz=hit.point.z+off.z;
+                const rayD=new THREE.Raycaster(new THREE.Vector3(px,100,pz),new THREE.Vector3(0,-1,0));
+                const gh=rayD.intersectObjects(terrains,true);
+                if(gh.length>0){
+                    const gpt=gh[0].point;
+                    if(isTooClose(gpt.x,gpt.y,gpt.z)) continue;
+                    let gobj=gh[0].object; while(!gobj.userData.type&&gobj.parent) gobj=gobj.parent;
+                    const gd=gobj.userData; if(!gd.type) continue;
+                    const pw=calcPower(gpt.x,gpt.y,gpt.z,gd.type);
+                    createTurbine(gpt.x,gpt.y,gpt.z,gd,pw);
+                    turbinesPlaced++; currentEnergyRate+=pw; cp+=pw; placed=true;
+                }
+            }
+            if(placed){sfx.place();showKpop('กลุ่ม 3 ต้น','วางแบบ Staggered Grid ลด Wake Effect',cp);}
+            else showWarning('พื้นที่ไม่เพียงพอหรือกังหันชิดกันเกินไป!');
+        } else {
+            if(isTooClose(hit.point.x,hit.point.y,hit.point.z)){showWarning('กังหันชิดกันเกินไป! จะเกิด Wake Effect');return;}
+            sfx.place();
+            const pw=calcPower(hit.point.x,hit.point.y,hit.point.z,td.type);
+            createTurbine(hit.point.x,hit.point.y,hit.point.z,td,pw);
+            turbinesPlaced++; currentEnergyRate+=pw;
+            showKpop(td.type,dynDesc(pw,td.type),pw);
+        }
+        document.getElementById('turbines-left').innerText=maxTurbines-turbinesPlaced;
+        document.getElementById('strip-total').innerText=totalScore+currentEnergyRate;
+        updateScoreUI(currentEnergyRate);
+        if(turbinesPlaced===maxTurbines) document.getElementById('submit-wrap').style.display='block';
+    }
+});
+
+window.addEventListener('resize',()=>{
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+});
+
+/* ── ANIMATION ── */
+const clock=new THREE.Clock();
+function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    const t=clock.getElapsedTime();
+    if(seaMesh&&seaOrigVerts.length){
+        const pos=seaMesh.geometry.attributes.position;
+        for(let i=0;i<pos.count;i++){
+            const o=seaOrigVerts[i];
+            if(o.y>0){const w=Math.sin(o.x*0.45+t*1.8)*0.28+Math.cos(o.z*0.35+t*1.4)*0.28;pos.setY(i,o.y+w);}
+        }
+        seaMesh.geometry.computeVertexNormals(); pos.needsUpdate=true;
+    }
+    turbines.forEach(t=>t.rotor.rotation.z-=t.speed);
+    clouds.forEach(c=>{c.position.x+=c.userData.speed;if(c.position.x>90){c.position.x=-90;c.position.z=-60+Math.random()*120;}});
+    animatedObjects.forEach(ao=>ao.update(t));
+    renderer.render(scene,camera);
+}
+animate();
+</script>
+</body>
+</html>
