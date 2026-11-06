@@ -9,38 +9,33 @@ function showScreen(name){
 function goToLobby(){
     const n=document.getElementById('player-name').value.trim();
     if(!n){alert('กรุณาใส่ชื่อของคุณ!');return;}
+    if(/[.#$\[\]\/]/.test(n)){alert('ชื่อห้ามมีอักขระ . # $ [ ] /');return;}
     playerName=n;
     document.getElementById('in-game-name').innerText=playerName;
     showScreen('lobby');
 }
 
 /* ── ROOM LOGIC ── */
-function createRoom(){
+async function createRoom(){
     isHost=true;
     let m=parseInt(document.getElementById('host-max-players').value);
     if(isNaN(m)||m<2||m>30) m=30;
     maxPlayers=m;
-    roomCode=Math.floor(1000+Math.random()*9000).toString();
-    roomRef=db.ref('rooms/'+roomCode);
-    roomRef.set({status:'waiting',maxPlayers,levelId:1,totalScores:{}});
+    try{roomCode=await Net.createRoom(maxPlayers);}
+    catch(e){alert('สร้างห้องไม่สำเร็จ ลองใหม่อีกครั้ง');return;}
     joinRoomLogic();
 }
-function joinRoom(){
+async function joinRoom(){
     const c=document.getElementById('join-code').value;
     if(c.length!==4){alert('กรุณากรอกรหัส 4 หลัก!');return;}
     isHost=false; roomCode=c;
-    roomRef=db.ref('rooms/'+roomCode);
-    roomRef.once('value',snap=>{
-        if(snap.exists()){
-            maxPlayers=snap.val().maxPlayers||30;
-            joinRoomLogic();
-        } else alert('ไม่พบรหัสห้องนี้!');
-    });
+    const room=await Net.getRoom(roomCode);
+    if(!room){alert('ไม่พบรหัสห้องนี้!');return;}
+    maxPlayers=room.maxPlayers||30;
+    joinRoomLogic();
 }
-function joinRoomLogic(){
-    playerRef=db.ref('rooms/'+roomCode+'/players/'+playerName);
-    playerRef.set({score:0,time:0,status:'joined',totalScore:0});
-    playerRef.onDisconnect().remove();
+async function joinRoomLogic(){
+    if(!await Net.joinRoom(playerName)){alert('ชื่อนี้มีคนใช้ในห้องแล้ว กรุณาเปลี่ยนชื่อ');showScreen('login');return;}
     setupPregame();
 }
 function setupPregame(){
@@ -55,8 +50,7 @@ function setupPregame(){
         document.getElementById('role-status').innerText='👤 ผู้เข้าร่วม';
         document.getElementById('waiting-host').style.display='block';
     }
-    db.ref('rooms/'+roomCode+'/players').on('value',snap=>{
-        const d=snap.val()||{};
+    Net.onPlayers(d=>{
         playersInRoom=Object.keys(d).length;
         document.getElementById('players-joined').innerText=playersInRoom;
         document.getElementById('progress-bar').style.width=(playersInRoom/maxPlayers*100)+'%';
@@ -65,9 +59,9 @@ function setupPregame(){
             b.disabled=false; b.innerText='เริ่มเกม!';
         }
     });
-    roomRef.child('status').on('value',snap=>{if(snap.val()==='playing') showLevelIntro(1);});
+    Net.onStatus(st=>{if(st==='playing'){Net.unsubscribeAll();showLevelIntro(1);}});
 }
-function startGame(){roomRef.update({status:'playing',currentLevel:1});}
+function startGame(){Net.startGame();}
 
 /* ── LEVEL INTRO ── */
 function showLevelIntro(lvId){
@@ -170,12 +164,7 @@ function submitScore(){
     const passed=currentEnergyRate>=lv.passScore;
     totalScore+=currentEnergyRate;
 
-    // Save to firebase
-    playerRef.update({
-        [`level${currentLevelId}Score`]:currentEnergyRate,
-        [`level${currentLevelId}Time`]:timeTaken,
-        totalScore
-    });
+    Net.saveLevel(currentLevelId,currentEnergyRate,timeTaken,totalScore);
 
     showLevelClear(passed);
 }
@@ -234,10 +223,9 @@ function goToNextLevel(lvId){
 
 function goToPostgame(){
     showScreen('postgame');
-    playerRef.update({status:'finished'});
+    Net.finish();
 
-    db.ref('rooms/'+roomCode+'/players').on('value',snap=>{
-        const p=snap.val()||{};
+    Net.onPlayers(p=>{
         let fin=0,total=Object.keys(p).length,lb=[];
         for(let k in p){
             if(p[k].status==='finished') fin++;
