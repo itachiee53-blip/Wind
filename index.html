@@ -2,9 +2,10 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#0b1220">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🌬️ Wind Farm Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -14,119 +15,148 @@
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" class="screen">
-    <div class="card" style="text-align:center;">
-        <div class="logo-badge">🌬️</div>
-        <h1 style="font-size:26px;font-weight:900;margin-bottom:4px;">Wind Farm Pro</h1>
-        <p>เรียนรู้พลังงานลมผ่านการสร้างฟาร์มกังหัน 4 ด่าน</p>
-        <input class="inp" id="player-name" type="text" placeholder="ชื่อของคุณ..." maxlength="12">
-        <button class="btn btn-sky" onclick="handleClick(goToLobby)">เริ่มต้น →</button>
+<section id="login-screen" class="screen">
+    <div class="card card-hero">
+        <div class="brand-mark">🌬️</div>
+        <h1 class="brand-title">Wind Farm <span>Pro</span></h1>
+        <p class="muted">เรียนรู้พลังงานลมผ่านการสร้างฟาร์มกังหัน 4 ด่าน</p>
+        <div class="level-chips">
+            <span>🌊 ทะเล</span><span>🏜️ ทะเลทราย</span><span>❄️ ขั้วโลก</span><span>⛈️ พายุ</span>
+        </div>
+        <label class="field">
+            <span class="field-label">ชื่อผู้เล่น</span>
+            <input class="inp" id="player-name" type="text" placeholder="พิมพ์ชื่อของคุณ" maxlength="12" autocomplete="off">
+        </label>
+        <button class="btn btn-primary" onclick="handleClick(goToLobby)">เริ่มต้น →</button>
     </div>
-</div>
+</section>
 
 <!-- LOBBY -->
-<div id="lobby-screen" class="screen" style="display:none;">
+<section id="lobby-screen" class="screen" hidden>
     <div class="card">
-        <h2>🎮 ห้องแข่งขัน</h2>
-        <p>เริ่มจากด่าน 1 ไปถึงด่าน 4 รวมคะแนนทุกด่าน!</p>
-        <div style="background:var(--offwhite);padding:16px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;">
-            <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:7px;">สร้างห้อง (Host)</label>
-            <input class="inp" type="number" id="host-max-players" min="2" max="30" value="30" placeholder="จำนวนผู้เล่น">
-            <button class="btn btn-sky btn-sm" onclick="handleClick(createRoom)">➕ สร้างห้องใหม่</button>
+        <header class="card-head">
+            <h2>ห้องแข่งขัน</h2>
+            <p class="muted">เล่นด่าน 1 ถึง 4 แล้วรวมคะแนนทุกด่าน</p>
+        </header>
+        <div class="panel">
+            <div class="panel-title"><span class="dot dot-host"></span>สร้างห้องใหม่</div>
+            <label class="field">
+                <span class="field-label">จำนวนผู้เล่นสูงสุด (2–30)</span>
+                <input class="inp" type="number" id="host-max-players" min="2" max="30" value="30">
+            </label>
+            <button class="btn btn-primary" onclick="handleClick(createRoom)">สร้างห้อง</button>
         </div>
-        <div class="divider">หรือ</div>
-        <div style="background:var(--offwhite);padding:16px;border-radius:12px;border:1px solid var(--border);">
-            <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:7px;">เข้าร่วมห้อง (Guest)</label>
-            <input class="inp" type="text" id="join-code" placeholder="รหัสห้อง 4 หลัก..." maxlength="4">
-            <button class="btn btn-outline btn-sm" onclick="handleClick(joinRoom)">เข้าร่วม</button>
+        <div class="divider"><span>หรือ</span></div>
+        <div class="panel">
+            <div class="panel-title"><span class="dot dot-guest"></span>เข้าร่วมห้อง</div>
+            <label class="field">
+                <span class="field-label">รหัสห้อง</span>
+                <input class="inp inp-code" type="text" id="join-code" placeholder="0000" maxlength="4" inputmode="numeric" autocomplete="off">
+            </label>
+            <button class="btn btn-ghost" onclick="handleClick(joinRoom)">เข้าร่วม</button>
         </div>
     </div>
-</div>
+</section>
 
 <!-- PREGAME -->
-<div id="pregame-screen" class="screen" style="display:none;">
-    <div class="card" style="text-align:center;">
-        <div class="loader"></div>
-        <p style="font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">รหัสห้อง</p>
+<section id="pregame-screen" class="screen" hidden>
+    <div class="card center">
+        <p class="eyebrow">รหัสห้อง</p>
         <div class="code-display" id="display-room-code">----</div>
-        <p id="role-status" style="color:var(--text2);">กำลังเชื่อมต่อ...</p>
-        <div style="background:var(--offwhite);padding:14px;border-radius:12px;border:1px solid var(--border);margin-bottom:14px;">
-            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">ผู้เล่นเข้าร่วม</div>
-            <div class="player-count"><span id="players-joined">1</span> <span>/ <span id="display-max-players">30</span></span></div>
-            <div class="progress-wrap"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+        <p class="role" id="role-status">กำลังเชื่อมต่อ...</p>
+        <div class="panel">
+            <div class="stat-line">
+                <span class="field-label">ผู้เล่นในห้อง</span>
+                <span class="mono"><b id="players-joined">1</b> / <span id="display-max-players">30</span></span>
+            </div>
+            <div class="bar"><div class="bar-fill" id="progress-bar" style="width:0%"></div></div>
         </div>
-        <button id="start-game-btn" class="btn btn-green" style="display:none;" disabled onclick="handleClick(startGame)">🚀เริ่มเกม!</button>
-        <p id="waiting-host" class="pulse-txt" style="display:none;font-size:13px;font-weight:700;color:var(--gold);">รอหัวห้องกดเริ่ม...</p>
+        <button id="start-game-btn" class="btn btn-go" style="display:none;" disabled onclick="handleClick(startGame)">เริ่มเกม</button>
+        <p id="waiting-host" class="waiting" style="display:none;"><span class="spinner"></span>รอหัวห้องกดเริ่ม</p>
     </div>
-</div>
+</section>
 
 <!-- LEVEL INTRO -->
-<div id="level-intro-screen" class="screen" style="display:none;">
-    <div class="intro-card" id="intro-content"></div>
-</div>
+<section id="level-intro-screen" class="screen" hidden>
+    <div class="card card-wide" id="intro-content"></div>
+</section>
 
 <!-- LEVEL CLEAR -->
-<div id="level-clear-screen" class="screen" style="display:none;">
-    <div class="clear-card" id="clear-content"></div>
-</div>
+<section id="level-clear-screen" class="screen" hidden>
+    <div class="card center" id="clear-content"></div>
+</section>
 
 <!-- POSTGAME (waiting all) -->
-<div id="postgame-screen" class="screen" style="display:none;">
-    <div class="card" style="text-align:center;">
-        <div class="loader"></div>
-        <h2>รอผู้เล่นทุกคน...</h2>
-        <p>ประมวลผลคะแนนขั้นสุดท้าย</p>
-        <div style="font-size:30px;font-weight:900;color:var(--sky-dk);margin-top:10px;">
-            <span id="players-finished">0</span>/<span id="display-max-players-post">30</span>
-        </div>
+<section id="postgame-screen" class="screen" hidden>
+    <div class="card center">
+        <div class="spinner spinner-lg"></div>
+        <h2>รอผู้เล่นทุกคน</h2>
+        <p class="muted">กำลังรวมคะแนนขั้นสุดท้าย</p>
+        <div class="big-count mono"><span id="players-finished">0</span><small>/<span id="display-max-players-post">30</span></small></div>
     </div>
-</div>
+</section>
 
 <!-- LEADERBOARD -->
-<div id="leaderboard-screen" class="screen" style="display:none;">
-    <div class="card" style="max-width:500px;width:100%;">
-        <div class="lb-header">
-            <h2>🏆 ผลการแข่งขัน</h2>
-            <p>คะแนนรวมทุก 4 ด่าน</p>
-        </div>
-        <div class="lb-scroll" id="leaderboard-list"></div>
-        <button class="btn btn-sky" onclick="handleClick(()=>location.reload())">🔄 เล่นใหม่</button>
+<section id="leaderboard-screen" class="screen" hidden>
+    <div class="card card-wide">
+        <header class="card-head center">
+            <div class="brand-mark">🏆</div>
+            <h2>ผลการแข่งขัน</h2>
+            <p class="muted">คะแนนรวมทั้ง 4 ด่าน</p>
+        </header>
+        <div class="lb-list" id="leaderboard-list"></div>
+        <button class="btn btn-primary" onclick="handleClick(()=>location.reload())">เล่นใหม่</button>
     </div>
-</div>
+</section>
 
-<!-- GAME UI -->
+<!-- GAME HUD -->
 <div id="game-ui">
-    <div class="hud-panel" id="hud-tl">
-        <div class="h-label">ผู้เล่น</div>
-        <div class="h-val"><span id="in-game-name" class="acc"></span></div>
-        <div style="margin-top:7px;">
-            <div class="h-label">กังหันที่เหลือ</div>
-            <div class="h-val"><span id="turbines-left" class="acc">0</span> / <span id="turbines-max">3</span></div>
+    <div class="hud hud-top">
+        <div class="hud-chip">
+            <span class="hud-label">ผู้เล่น</span>
+            <span class="hud-val" id="in-game-name"></span>
+        </div>
+        <div class="hud-chip">
+            <span class="hud-label">ด่าน</span>
+            <span class="hud-val mono"><span id="strip-level">1</span>/4</span>
+        </div>
+        <div class="hud-chip">
+            <span class="hud-label">คะแนนรวม</span>
+            <span class="hud-val mono accent" id="strip-total">0</span>
+        </div>
+        <div class="hud-chip">
+            <span class="hud-label">เวลา</span>
+            <span class="hud-val mono"><span id="timer-display">0.00</span>s</span>
+        </div>
+    </div>
+
+    <div class="hud hud-energy">
+        <span class="hud-label">พลังงานด่านนี้</span>
+        <div class="energy"><span class="energy-big mono" id="energy-rate">0</span><span class="energy-unit">หน่วย/วิ</span></div>
+        <div class="bar"><div class="bar-fill" id="energy-bar" style="width:0%"></div></div>
+        <span class="hud-label">เป้าหมาย <b class="mono" id="energy-target">0</b></span>
+    </div>
+
+    <div class="hud hud-tools">
+        <div class="turbine-count">
+            <span class="hud-label">กังหันที่เหลือ</span>
+            <span class="hud-val mono"><span id="turbines-left" class="accent">0</span>/<span id="turbines-max">3</span></span>
         </div>
         <button class="mode-btn" id="toggle-mode-btn" onclick="handleClick(toggleBuildMode)">วางทีละต้น</button>
     </div>
-    <div class="hud-panel" id="hud-tr">
-        <div class="h-label">พลังงานด่านนี้</div>
-        <div class="energy-big" id="energy-rate">0</div>
-        <div class="energy-unit">หน่วย/วิ</div>
-        <div class="timer-val">⏱ <span id="timer-display">0.00</span>s</div>
-    </div>
-    <!-- total score center strip -->
-    <div id="hud-total-strip">
-        คะแนนรวม: <span class="strip-score" id="strip-total">0</span> | ด่าน <span id="strip-level">1</span>/4
-    </div>
-    <div id="warn-toast"></div>
+
+    <div id="warn-toast" role="alert"></div>
     <div class="kpop" id="kpop">
         <div class="kp-place" id="kp-place"></div>
-        <div class="kp-desc"  id="kp-desc"></div>
-        <div class="kp-power" id="kp-power"></div>
+        <div class="kp-desc" id="kp-desc"></div>
+        <div class="kp-power mono" id="kp-power"></div>
     </div>
     <div id="submit-wrap">
-        <button onclick="handleClick(submitScore)">ส่งคะแนนด่านนี้</button>
+        <button class="btn btn-go" onclick="handleClick(submitScore)">ส่งคะแนนด่านนี้</button>
     </div>
 </div>
 
-<div id="canvas-container" style="position:absolute;inset:0;z-index:1;touch-action:none;"></div>
+<div id="canvas-container"></div>
 
 <script src="js/audio.js"></script>
 <script src="js/firebase.js"></script>

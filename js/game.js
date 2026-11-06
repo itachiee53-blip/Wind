@@ -69,13 +69,14 @@ function showLevelIntro(lvId){
     const lv=LEVELS[lvId];
     const el=document.getElementById('intro-content');
     el.innerHTML=`
-        <span class="intro-icon">${lv.icon}</span>
-        <div style="text-align:center;margin-bottom:12px;">
-            <span class="badge-pill ${lv.badge}">ด่าน ${lv.id} จาก 4 — ${lv.name}</span>
+        <div class="intro-head">
+            <div class="intro-icon">${lv.icon}</div>
+            <div>
+                <span class="badge-pill ${lv.badge}">ด่าน ${lv.id}/4 · ${lv.name}</span>
+                <h2 class="intro-title">${lv.tagline}</h2>
+            </div>
         </div>
-        <h2>${lv.tagline}</h2>
-        <p class="tagline">${lv.name} • วิทยาศาสตร์พลังงานลม</p>
-        <div style="margin-bottom:14px;">
+        <div class="k-list">
             ${lv.knowledge.map(k=>`
             <div class="k-item">
                 <span class="k-item-icon">${k.icon}</span>
@@ -84,15 +85,15 @@ function showLevelIntro(lvId){
         </div>
         <div class="quota-row">
             <div class="quota-item"><div class="q-num">${lv.turbines}</div><div class="q-label">กังหันลม</div></div>
-            <div class="quota-item"><div class="q-num">${lv.minDist}m</div><div class="q-label">ระยะขั้นต่ำ</div></div>
-            <div class="quota-item"><div class="q-num">${lv.passScore}</div><div class="q-label">เป้าหมาย</div></div>
+            <div class="quota-item"><div class="q-num">${lv.minDist}m</div><div class="q-label">ระยะห่างขั้นต่ำ</div></div>
+            <div class="quota-item"><div class="q-num">${lv.passScore}</div><div class="q-label">คะแนนผ่าน</div></div>
         </div>
         <div class="obj-box">
-            <div class="obj-label">🎯 เป้าหมาย</div>
+            <div class="obj-label">🎯 ภารกิจ</div>
             <div class="obj-text">${lv.objective}</div>
         </div>
-        ${totalScore>0?`<div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:12px;">คะแนนสะสมตอนนี้: <b style="color:var(--sky-dk)">${totalScore}</b> หน่วย</div>`:''}
-        <button class="btn btn-sky" onclick="handleClick(startGameLocal)" style="margin:0;">⚡ เริ่มด่าน ${lv.id}!</button>
+        ${totalScore>0?`<p class="carry">คะแนนสะสมตอนนี้ <b>${totalScore}</b> หน่วย</p>`:''}
+        <button class="btn btn-primary" onclick="handleClick(startGameLocal)">เริ่มด่าน ${lv.id} →</button>
     `;
     showScreen('level-intro');
 }
@@ -109,6 +110,9 @@ function startGameLocal(){
     document.getElementById('strip-level').innerText=currentLevelId;
     document.getElementById('strip-total').innerText=totalScore;
     document.getElementById('submit-wrap').style.display='none';
+    document.getElementById('energy-target').innerText=lv.passScore;
+    document.getElementById('energy-rate').innerText=0;
+    updateScoreUI(0);
 
     clearMap(); buildMap(currentLevelId);
     showScreen(null);
@@ -138,6 +142,8 @@ function showWarning(txt){
 function updateScoreUI(v){
     const el=document.getElementById('energy-rate');
     el.innerText=v; el.classList.add('pop');
+    const goal=LEVELS[currentLevelId].passScore,bar=document.getElementById('energy-bar');
+    bar.style.width=Math.min(v/goal*100,100)+'%'; bar.classList.toggle('done',v>=goal);
     if(v>peakEnergyRate&&v>0){peakEnergyRate=v;sfx.fanfare();}
     setTimeout(()=>el.classList.remove('pop'),150);
 }
@@ -180,31 +186,26 @@ function showLevelClear(passed){
     else starsHtml='⭐';
 
     el.innerHTML=`
-        <div class="clear-star">${passed?'🎉':'💪'}</div>
-        <h2>${passed?'ผ่านด่าน '+currentLevelId+'!':'ยังอีกนิดนึง!'}</h2>
-        <p class="sub">${lv.icon} ${lv.name} — ${starsHtml}</p>
-        <div class="score-row">
-            <span class="sr-label">พลังงานด่านนี้</span>
-            <span class="sr-val">${currentEnergyRate} หน่วย</span>
-        </div>
-        <div class="score-row">
-            <span class="sr-label">เป้าหมายด่าน</span>
-            <span class="sr-val" style="color:${passed?'var(--green)':'var(--red)'}">${lv.passScore} หน่วย</span>
-        </div>
-        <div class="score-row">
-            <span class="sr-label">เวลา</span>
-            <span class="sr-val">${timeTaken.toFixed(2)}s</span>
+        <div class="clear-emoji">${passed?'🎉':'💪'}</div>
+        <h2>${passed?'ผ่านด่าน '+currentLevelId+'!':'ยังอีกนิดเดียว!'}</h2>
+        <div class="clear-stars">${starsHtml}</div>
+        <p class="clear-sub">${lv.icon} ${lv.name}</p>
+        <div class="score-rows">
+            <div class="score-row"><span class="sr-label">พลังงานด่านนี้</span><span class="sr-val ${passed?'pass':'fail'}">${currentEnergyRate}</span></div>
+            <div class="score-row"><span class="sr-label">คะแนนผ่าน</span><span class="sr-val">${lv.passScore}</span></div>
+            <div class="score-row"><span class="sr-label">เวลา</span><span class="sr-val">${timeTaken.toFixed(2)}s</span></div>
         </div>
         <div class="score-total-box">
             <div class="st-label">คะแนนสะสมรวม</div>
             <div class="st-val">${totalScore}</div>
             <div class="st-unit">หน่วยพลังงาน</div>
         </div>
+        <div class="btn-stack">
         ${isLast
-            ?`<button class="btn btn-sky" onclick="handleClick(goToPostgame)" style="margin:0;">📊 ดูผลการแข่งขัน</button>`
-            :`<button class="btn btn-sky" onclick="handleClick(()=>goToNextLevel(${currentLevelId+1}))" style="margin:0;">ด่านถัดไป: ${LEVELS[currentLevelId+1].icon} ${LEVELS[currentLevelId+1].name} →</button>`
-        }
-        ${!isLast?`<button class="btn btn-outline" onclick="handleClick(()=>retryLevel(${currentLevelId}))" style="margin-top:0;">🔄 เล่นด่านนี้ใหม่</button>`:''}
+            ?`<button class="btn btn-primary" onclick="handleClick(goToPostgame)">ดูผลการแข่งขัน</button>`
+            :`<button class="btn btn-primary" onclick="handleClick(()=>goToNextLevel(${currentLevelId+1}))">ด่านถัดไป: ${LEVELS[currentLevelId+1].icon} ${LEVELS[currentLevelId+1].name} →</button>
+              <button class="btn btn-ghost" onclick="handleClick(()=>retryLevel(${currentLevelId}))">เล่นด่านนี้ใหม่</button>`}
+        </div>
     `;
     sfx.levelClear();
     showScreen('level-clear');
@@ -253,9 +254,9 @@ function showLeaderboard(data){
         const me=p.isMe?'rme':'';
         list.innerHTML+=`<div class="rank-row ${rnk} ${me}">
             <span class="rank-medal">${medal}</span>
-            <span class="rank-name">${p.name}</span>
-            <div>
-                <div class="rs-val">${p.score} <span style="font-size:10px;color:var(--text3);font-weight:400">หน่วย</span></div>
+            <span class="rank-name">${p.name.replace(/[&<>"]/g,c=>`&#${c.charCodeAt(0)};`)}</span>
+            <div class="rank-score">
+                <div class="rs-val">${p.score} <small>หน่วย</small></div>
                 <div class="rs-time">${(p.time||0).toFixed(2)}s</div>
             </div>
         </div>`;
